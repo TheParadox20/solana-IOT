@@ -7,7 +7,7 @@ import WebSocket from 'ws';
 
 const app = express();
 app.use(cors());
-const port =  process.env.PORT || 5001;
+const port =  process.env.PORT || 3000;
 
 // sendFile will go here
 let __filename = fileURLToPath(import.meta.url);
@@ -29,7 +29,7 @@ app.get('/balance',(req,res)=>{
 });
 
 //Websocket
-let wss = new WebSocket.Server({port: (process.env.PORT || 5000)});
+let wss = new WebSocket.Server({port: port});
 // Event handler for connection
 wss.on('connection', (ws) => {
     console.log('Client connected');
