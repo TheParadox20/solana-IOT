@@ -4,6 +4,7 @@ import cors from 'cors';
 import { fileURLToPath } from 'url';
 import {getUserBalance} from './wallet.js';
 import WebSocket from 'ws';
+import http from 'http';
 
 const app = express();
 app.use(cors());
@@ -14,7 +15,8 @@ let __filename = fileURLToPath(import.meta.url);
 let __dirname = path.dirname(__filename);
 app.use(express.static(path.join(__dirname,'frontend', 'dist')));
 
-app.listen(port,()=>{
+let server = http.createServer(app);
+server.listen(port,()=>{
     console.log('Server started at http://localhost:' + port);
 });
 app.get('/test',(req,res)=>{
@@ -29,7 +31,7 @@ app.get('/balance',(req,res)=>{
 });
 
 //Websocket
-let wss = new WebSocket.Server({port: port});
+let wss = new WebSocket.Server({server});
 // Event handler for connection
 wss.on('connection', (ws) => {
     console.log('Client connected');

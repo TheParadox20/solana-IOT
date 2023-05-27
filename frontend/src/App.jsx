@@ -3,7 +3,7 @@ import {Progress, Button, Spinner} from 'flowbite-react'
 import logo from '/logo.svg'
 
 // Create WebSocket connection.
-const socket = new WebSocket("ws://localhost:5000");
+const socket = new WebSocket("ws://localhost:3000");
 
 // Connection opened
 socket.addEventListener("open", (event) => {
