@@ -3,6 +3,7 @@ import path from 'path';
 import cors from 'cors';
 import { fileURLToPath } from 'url';
 import {getUserBalance} from './wallet.js';
+import WebSocket from 'ws';
 
 const app = express();
 app.use(cors());
@@ -24,5 +25,25 @@ app.get('/balance',(req,res)=>{
     console.log(req.query);
     getUserBalance(req.query.address).then((balance)=>{
         res.send(`{"balance":${balance}}`);
+    });
+});
+
+//Websocket
+let wss = new WebSocket.Server({port: (process.env.PORT || 5000)});
+// Event handler for connection
+wss.on('connection', (ws) => {
+    console.log('Client connected');
+  
+    // Event handler for receiving messages
+    ws.on('message', (message) => {
+      console.log(`Received message: ${message}`);
+  
+      // Send a response back to the client
+      ws.send(`Server received: ${message}`);
+    });
+  
+    // Event handler for disconnection
+    ws.on('close', () => {
+      console.log('Client disconnected');
     });
 });
