@@ -6,7 +6,7 @@ import {getUserBalance} from './wallet.js';
 
 const app = express();
 app.use(cors());
-const port = 8081;
+const port =  process.env.PORT || 5001;
 
 // sendFile will go here
 let __filename = fileURLToPath(import.meta.url);
