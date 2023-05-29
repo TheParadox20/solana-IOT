@@ -77,12 +77,31 @@ app.get('/balance',(req,res)=>{
         res.send(`{"balance":${balance}}`);
     });
 });
-app.get('/transact',(req,res)=>{//transaction request from base station
+app.get('/transact',async (req,res)=>{//transaction request from base station
     console.log(req.query);
+    let clientResponse = async (client)=>{
+        return new Promise((resolve,reject)=>{
+            client.on('message', (message) => {
+                msg = JSON.parse(message);
+                if(msg.type == 'update'){
+                    resolve(msg.status);
+                }else{
+                    reject('failed');
+                }
+            });
+        });
+    }
     con.query(`SELECT username FROM users  WHERE rfid='${req.query.rfid}'`, function (err, result) {
         if (err) throw err;
         if(result.length > 0){
-            if(users[result[0].username]) users[result[0].username].client.send(`{"type":"notification","amount":${req.query.amount},"address":"${req.query.address}"}`);//send transaction request to user
+            if(users[result[0].username]){//send transaction request to user
+                users[result[0].username].client.send(`{"type":"notification","amount":${req.query.amount},"address":"${req.query.address}"}`);
+                res.send(
+                    clientResponse(users[result[0].username].client).then((status)=>{
+                        return `{"status":"${status}","message":"Transaction ${status}"}`
+                    })
+                )
+            }
             else res.send('{"status":"Failed","message":"user not online"}');
         }
         else res.send('{"status":"Failed","message":"RFID not registered"}')
@@ -108,7 +127,7 @@ wss.on('connection', (ws) => {
                 });
             }
         }
-        else if(msg.type == 'login'){}
+        else if(msg.type == 'accept'){}
       console.log(`Received message: ${message}`);
   
       // Send a response back to the client
