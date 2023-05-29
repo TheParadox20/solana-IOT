@@ -3,18 +3,6 @@ import Header from './components/Header';
 import Services from './components/Services';
 
 
-// Create WebSocket connection.
-const socket = new WebSocket("ws://localhost:3000");
-
-// Connection opened
-socket.addEventListener("open", (event) => {
-  socket.send("Fuck society!");
-});
-
-// Listen for messages
-socket.addEventListener("message", (event) => {
-  console.log("Message from server ", event.data);
-});
 export default function App() {
   const [count, setCount] = useState(0)
   // fetch('https://solana-iot.herokuapp.com/balance?address=G5ySUnvRthoersCZZqkZwWPWn9JvHSqFoocsJivgUzyT').then(res => res.json()).then(data => console.log(data))

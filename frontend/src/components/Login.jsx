@@ -1,4 +1,5 @@
 import { useState } from "react"
+import { useNavigate } from "react-router-dom"
 import {baseURL} from '../data.json'
 
 export default function Login() {
@@ -6,10 +7,50 @@ export default function Login() {
     let [username, setUsername] = useState('')
     let [email, setEmail] = useState('')
     let [password, setPassword] = useState('')
+    let [key, setKey] = useState('')
+
+    let navigate = useNavigate()
 
     let login = (e) => {
         e.preventDefault()
         console.log('login')
+        fetch(`${baseURL}/login`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({
+                username:username,
+                password:password
+            })
+        }).then(res => res.json()).then(data => {
+            console.log(data)
+            if(data.status === 'success'){
+                localStorage.setItem('username',data.username)
+                navigate('/dashboard')
+            }else if(data.status === 'error'){
+                alert(data.message)
+            }
+        })
+    }
+    let signUp = (e) => {
+        e.preventDefault()
+        console.log('signup')
+        fetch(`${baseURL}/signup`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({
+                username:username,
+                password:password,
+                pk:key,
+                email:email
+            })
+        }).then(res => res.json()).then(data => {
+            console.log(data)
+            if(data.status === 'success') setSignup(false)
+        })
     }
     
     return(
@@ -39,6 +80,8 @@ export default function Login() {
                         type="username"
                         autoComplete="username"
                         required
+                        value={username}
+                        onChange={(e)=>setUsername(e.target.value)}
                         className="block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6"
                         />
                     </div>
@@ -56,6 +99,8 @@ export default function Login() {
                                         name="email"
                                         type="email"
                                         autoComplete="email"
+                                        value={email}
+                                        onChange={(e)=>setEmail(e.target.value)}
                                         className="block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6"
                                         />
                                     </div>
@@ -70,6 +115,8 @@ export default function Login() {
                                         id="key"
                                         name="key"
                                         type="password"
+                                        value={key}
+                                        onChange={(e)=>setKey(e.target.value)}
                                         className="block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6"
                                         />
                                     </div>
@@ -95,6 +142,8 @@ export default function Login() {
                         type="password"
                         autoComplete="current-password"
                         required
+                        value={password}
+                        onChange={(e)=>setPassword(e.target.value)}
                         className="block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6"
                         />
                     </div>
@@ -102,7 +151,7 @@ export default function Login() {
 
                     <div>
                     <button
-                        type="submit"
+                        onClick={(e)=>signup ? signUp(e) : login(e)}
                         className="flex w-full justify-center rounded-md bg-indigo-600 px-3 py-1.5 text-sm font-semibold leading-6 text-white shadow-sm hover:bg-indigo-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600"
                     >
                         {signup ? 'Sign up' : 'Sign in'}
