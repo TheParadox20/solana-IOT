@@ -1,4 +1,4 @@
-import express from 'express';
+import express, { response } from 'express';
 import path from 'path';
 import cors from 'cors';
 import { fileURLToPath } from 'url';
@@ -99,33 +99,53 @@ app.get('/balance',(req,res)=>{
 });
 app.get('/transact',async (req,res)=>{//transaction request from base station
     console.log(req.query);
-    let clientResponse = async (client)=>{
-        return new Promise((resolve,reject)=>{
-            client.on('message', (message) => {
-                msg = JSON.parse(message);
-                if(msg.type == 'update'){
-                    resolve(msg.status);
-                }else{
-                    reject('failed');
+    //wait for client to respond if positive wait for transaction to complete if negative send failed
+    await new Promise((resolve,reject)=>{
+        let username = '';
+        con.query(`SELECT username FROM users  WHERE card='${req.query.rfid}'`, function (err, result) {
+            if (err) throw err;
+            if(result.length > 0){//check if rfid is registered
+                username = result[0].username;
+                if(users[username].client){//check if user is online
+                    users[username].client.send(JSON.stringify({//send transaction request to user
+                        type: 'transact',
+                        amount: req.query.amount,
+                        address: req.query.address
+                    }));
+                    users[username].client.on('message',(message)=>{
+                        let msg = JSON.parse(message);
+                        resolve(msg);
+                    });
+                    setTimeout(()=>{
+                        reject('{"status":"Failed","message":"user not responding"}');
+                    },10000);
                 }
-            });
-        });
-    }
-    con.query(`SELECT username FROM users  WHERE rfid='${req.query.rfid}'`, function (err, result) {
-        if (err) throw err;
-        if(result.length > 0){
-            if(users[result[0].username]){//send transaction request to user
-                users[result[0].username].client.send(`{"type":"notification","amount":${req.query.amount},"address":"${req.query.address}"}`);
-                res.send(
-                    clientResponse(users[result[0].username].client).then((status)=>{
-                        return `{"status":"${status}","message":"Transaction ${status}"}`
-                    })
-                )
+                else reject('{"status":"Failed","message":"user not online"}')
             }
-            else res.send('{"status":"Failed","message":"user not online"}');
+            else reject('{"status":"Failed","message":"RFID not registered"}')
+        });
+    })
+    .then((msg)=>{
+        if(msg.type == 'authorize'){
+            if(msg.data.status==='deny') console.log('Transaction Denied');
+            else if(msg.data.status==='accept'){
+                transact(msg.data.amount,msg.data.address,users[msg.data.username].wallet).then((signature)=>{
+                    let confirmation = JSON.stringify({
+                        type: 'update',
+                        status: 'success',
+                        message: `Transaction Successful: ${signature}}`
+                    })
+                    users[msg.data.username].client.send(confirmation);
+                    res.send(confirmation);
+                });
+            }
         }
-        else res.send('{"status":"Failed","message":"RFID not registered"}')
+    })
+    .catch((err)=>{
+        console.log('From catch',err);
+        res.send(err);
     });
+
 });
 //add card to user
 app.get('/addcard',(req,res)=>{
@@ -154,7 +174,11 @@ wss.on('connection', (ws) => {
         else if(msg.type == 'transact'){//transaction initiated by user
             if(users[msg.username].client == ws){
                 transact(msg.amount,msg.address,users[msg.username].wallet).then((signature)=>{
-                    users[msg.username].client.send(`{"type":"status","signature":"${signature}","status":"success"}`);
+                    users[msg.username].client.send(JSON.stringify({
+                        type: 'update',
+                        status: 'success',
+                        message: `Transaction Successful: ${signature}}`
+                    }));
                 });
             }else{
                 ws.send(JSON.stringify({
@@ -164,12 +188,9 @@ wss.on('connection', (ws) => {
             }
         }
         else if(msg.type == 'logout'){
-            delete users[msg.username];
+            delete users[msg.data.username];
         }
       console.log(`Received message: ${message}`);
-
-      // Send a response back to the client
-      ws.send(`Server received: ${message}`);
     });
   
     // Event handler for disconnection

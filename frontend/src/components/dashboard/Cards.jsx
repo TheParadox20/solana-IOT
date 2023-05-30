@@ -12,7 +12,7 @@ export default function Cards(){
         fetch(`${baseURL}/addcard?username=${localStorage.getItem('username')}&cardname=${cardName}}&cardid=${card}`).then(res => res.json()).then(data => {})
     }
     return (
-        <div>
+        <div class="p-4 rounded-lg dark:border-gray-700 mt-14">
             <h3>Cards Page</h3>
             <form>
                 <input type="text" placeholder="Enter card name" />
