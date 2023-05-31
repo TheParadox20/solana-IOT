@@ -21,6 +21,7 @@ async function getUserBalance(address) {
 }
 //transact
 async function transact(amount,receiver,wallet){//amount in sol
+    console.log('Transacting ',amount,' SOL to ',receiver);
     let transaction = new web3.Transaction().add(
         web3.SystemProgram.transfer({
             fromPubkey: wallet.publicKey,

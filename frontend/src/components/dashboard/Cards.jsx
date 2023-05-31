@@ -29,7 +29,7 @@ export default function Cards(){
     }
     return (
         <div class="p-4 rounded-lg dark:border-gray-700 mt-14">
-            <h3>Your cards</h3>
+            <h3 className="text-xl font-bold my-2">Your cards</h3>
 
             <div class="relative overflow-x-auto shadow-md sm:rounded-lg">
                 <table class="w-full text-sm text-left text-gray-500 dark:text-gray-400">
@@ -72,15 +72,15 @@ export default function Cards(){
                 </table>
             </div>
 
-            <h3>Add card</h3>
+            <h3 className="text-xl font-bold my-4">Add card</h3>
             <form className="flex flex-col w-10/12 md:w-1/3 mx-auto justify-center">
-                <label className="block my-2 rounded-sm pl-4" htmlFor="card">Card UID</label>
-                <input className="block my-4 h-12 rounded-sm pl-4" type="text" name="card" id="card" placeholder="12341234" value={card} onChange={event=>setCard(event.target.value)}/>
-                <label className="block my-2 rounded-sm pl-4" htmlFor="name">Card Name</label>
-                <input className="block my-4 h-12 rounded-sm pl-4" type="name" name="name" id="name" placeholder="Parking lot" value={cardName} onChange={event=>setCardName(event.target.value)}/>
-                <label className="block my-2 rounded-sm pl-4" htmlFor="desc">Description</label>
-                <input className="block my-4 h-12 rounded-sm pl-4" type="text" name="desc" id="desc" placeholder="address(0xfff)" value={description} onChange={event=>setDescription(event.target.value)}/>
-                <button className="bg-blue-500 text-white w-3/4 mx-auto py-4 px-4 mt-8 rounded-xl" onClick={e=>addCard(e)}>Add</button>
+                <label className="my-2 block text-sm font-medium leading-6 text-gray-900" htmlFor="card">Card UID</label>
+                <input className="my-2 pl-2 block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-green-400 sm:text-sm sm:leading-6" type="text" name="card" id="card" placeholder="12341234" value={card} onChange={event=>setCard(event.target.value)}/>
+                <label className="my-2 block text-sm font-medium leading-6 text-gray-900" htmlFor="name">Card Name</label>
+                <input className="my-2 pl-2 block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-green-400 sm:text-sm sm:leading-6" type="name" name="name" id="name" placeholder="Parking lot" value={cardName} onChange={event=>setCardName(event.target.value)}/>
+                <label className="my-2 block text-sm font-medium leading-6 text-gray-900" htmlFor="desc">Description</label>
+                <input className="my-2 pl-2 block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-green-400 sm:text-sm sm:leading-6" type="text" name="desc" id="desc" placeholder="Work parking space" value={description} onChange={event=>setDescription(event.target.value)}/>
+                <button className="flex w-full justify-center rounded-md bg-green-400 px-3 py-1.5 text-sm font-semibold leading-6 text-white shadow-sm hover:bg-green-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-green-400 my-8" onClick={e=>addCard(e)}>Add</button>
             </form>
         </div>
     )

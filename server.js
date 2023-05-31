@@ -8,11 +8,17 @@ import http from 'http';
 import mysql from 'mysql';
 import bodyParser from 'body-parser';
 
-var con = mysql.createConnection({
-    host: "127.0.0.1",
-    user: "sammy",
-    password: "sammy",
-    database: "solana"
+// var con = mysql.createConnection({
+//     host: "127.0.0.1",
+//     user: "sammy",
+//     password: "sammy",
+//     database: "solana"
+// });
+let con = mysql.createConnection({
+    host:"eporqep6b4b8ql12.chr7pe7iynqr.eu-west-1.rds.amazonaws.com",
+    user:"g69oj8qro3rtnqj1",
+    password:"aeosrm4kqv9akf96",
+    database:"m7ukhlpb3u1u4yjb"
 });
 //CREATE TABLE users (id INT AUTO_INCREMENT PRIMARY KEY, username VARCHAR(255), email VARCHAR(255), password VARCHAR(64) NOT NULL, private_key VARCHAR(128), address VARCHAR(42));
 //CREATE TABLE cards (id INT PRIMARY KEY, card VARCHAR(255), description VARCHAR(255), user VARCHAR(255));
@@ -66,13 +72,15 @@ app.post('/login',(req,res)=>{
                     status: 'success',
                     address: users[req.body.username].wallet.publicKey.toBase58(),
                     message: 'Wallet Created',
-                    username: req.body.username
+                    username: req.body.username,
+                    email: result[0].email
                 }))
             }else{
                 res.send(JSON.stringify({
                     status: 'success',
                     message: 'Login Successful',
                     username: req.body.username,
+                    email: result[0].email
                 }))
             }
         }
@@ -102,7 +110,7 @@ app.get('/balance',(req,res)=>{
     });
 });
 app.get('/transact',async (req,res)=>{//transaction request from base station
-    console.log(req.query);
+    console.log('Transact parameters: ',req.query);
     //get station from table
     let station = {}
     con.query(`SELECT * FROM stations  WHERE id='${req.query.station}'`, function (err, result) {
@@ -121,7 +129,7 @@ app.get('/transact',async (req,res)=>{//transaction request from base station
             if(result.length > 0){//check if rfid is registered
                 username = result[0].user;
                 console.log(username);
-                if(users[username].client){//check if user is online
+                if(users[username] && users[username].client){//check if user is online
                     users[username].client.send(JSON.stringify({//send transaction request to user
                         type: 'transact',
                         amount: req.query.amount,
@@ -199,7 +207,10 @@ wss.on('connection', (ws) => {
                     users[msg.username].client.send(JSON.stringify({
                         type: 'update',
                         status: 'success',
-                        message: `Transaction Successful: ${signature}}`
+                        message: {
+                            text: `Transaction Successful`,
+                            signature: signature
+                        },
                     }));
                 });
             }else{
@@ -211,6 +222,21 @@ wss.on('connection', (ws) => {
         }
         else if(msg.type == 'logout'){
             delete users[msg.data.username];
+        }
+        if(msg.type == 'authorize'){
+            if(msg.data.status==='accept'){
+                transact(msg.data.amount,msg.data.address,users[msg.data.username].wallet).then((signature)=>{
+                    let confirmation = JSON.stringify({
+                        type: 'update',
+                        status: 'success',
+                        message: {
+                            text: `Transaction Successful`,
+                            signature: signature
+                        },
+                    })
+                    users[msg.data.username].client.send(confirmation);
+                });
+            }
         }
       console.log(`Received message: ${message}`);
     });

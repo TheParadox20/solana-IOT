@@ -54,8 +54,7 @@ void scanCard() {
     Serial.println(F("The NUID tag is:"));
     Serial.println(getUID(rfid.uid.uidByte, rfid.uid.size));
     Serial.println("");
-    runHTTPclient(getUID(rfid.uid.uidByte, rfid.uid.size));
-    // sendData("RFID",getUID(rfid.uid.uidByte, rfid.uid.size));
+    if(!runHTTPclient(getUID(rfid.uid.uidByte, rfid.uid.size))) rfid.uid.uidByte[0] = rfid.uid.uidByte[2];
   }
   else Serial.println(F("Card read previously."));
 
