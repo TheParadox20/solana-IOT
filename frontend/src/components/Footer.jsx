@@ -5,7 +5,7 @@ export default function Footer(){
         initFlowbite();
     }, [])
     return(
-        <footer class="bg-white rounded-lg shadow dark:bg-gray-900 m-4 relative bottom-0">
+        <footer class="bg-white rounded-lg shadow dark:bg-gray-900 my-4 mx-1.5 relative bottom-0">
             <div class="w-full max-w-screen-xl mx-auto p-4 md:py-8">
                 <div class="sm:flex sm:items-center sm:justify-between">
                     <a href="https://flowbite.com/" class="flex items-center mb-4 sm:mb-0">
@@ -28,7 +28,7 @@ export default function Footer(){
                     </ul>
                 </div>
                 <hr class="my-6 border-gray-200 sm:mx-auto dark:border-gray-700 lg:my-8" />
-                <span class="block text-sm text-gray-500 sm:text-center dark:text-gray-400">© 2023 <a href="https://flowbite.com/" class="hover:underline">Flowbite™</a>. All Rights Reserved.</span>
+                <span class="block text-sm text-gray-500 sm:text-center dark:text-gray-400">© 2023 <a href="/" class="hover:underline">Sol-IoT</a>. All Rights Reserved.</span>
             </div>
         </footer>
     )

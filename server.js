@@ -48,7 +48,7 @@ server.listen(port,()=>{
 });
 app.get('/test',(req,res)=>{
     console.log(req.query);
-    res.send('Hello World');
+    res.send('Hello World\n');
 });
 app.post('/login',(req,res)=>{
     //check is username and password is correct
@@ -129,16 +129,16 @@ app.get('/transact',async (req,res)=>{//transaction request from base station
                     }));
                     users[username].client.on('message',(message)=>{
                         let msg = JSON.parse(message);
-                        if(msg.type == 'authorize') if(msg.data.status==='deny') reject('{"status":"Failed","message":"Transaction Denied"}');
-                        resolve(msg);
+                        if(msg.type == 'authorize') if(msg.data.status==='deny') reject('{"status":"Failed","message":"Transaction Denied"}\n');
+                        resolve(msg+'\n');
                     });
                     setTimeout(()=>{
-                        reject('{"status":"Failed","message":"user not responding"}');
+                        reject('{"status":"Failed","message":"user not responding"}\n');
                     },10000);
                 }
-                else reject('{"status":"Failed","message":"user not online"}')
+                else reject('{"status":"Failed","message":"user not online"}\n')
             }
-            else reject('{"status":"Failed","message":"RFID not registered"}')
+            else reject('{"status":"Failed","message":"RFID not registered"}\n')
         });
     })
     .then((msg)=>{
@@ -187,9 +187,6 @@ app.get('/getcards',(req,res)=>{
 // Event handler for connection
 wss.on('connection', (ws) => {
     console.log('Client connected');
-    clients.push(ws);
-    console.log(clients.length);
-
     // Event handler for receiving messages
     ws.on('message', (message) => {
         let msg = JSON.parse(message);

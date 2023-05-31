@@ -1,7 +1,7 @@
 import { useState,useEffect } from 'react'
 import { initFlowbite } from 'flowbite'
 import Header from './components/Header';
-import Services from './components/Services';
+import Body from './components/Body';
 import Footer from './components/Footer';
 
 
@@ -15,7 +15,7 @@ export default function App() {
   return (
     <div className='container mx-auto text-center'>
       <Header/>
-      <Services/>
+      <Body/>
       <Footer/>
     </div>
   )

@@ -18,7 +18,7 @@ export default function Dashboard(){
     let [popupHead, setPopupHead] = useState('')
     let [newMessage, setNewMessage] = useState(false)
     let [message, setMessage] = useState('')
-    let {messageType,setMessageType} = useState('')
+    let [messageType,setMessageType] = useState('')
 
     let navigate = useNavigate()
     //if not logged in, redirect to login page via useEffect
@@ -38,22 +38,21 @@ export default function Dashboard(){
         socket.onmessage = (e) => {
             console.log('message received on dashboard')
             msg = JSON.parse(e.data)
-            if(msg.type === 'error') {
-                setMessage(msg.message)
-                setMessageType('error')
-                setNewMessage(true)
-            }
             if(msg.type === 'transact'){
                 setPopupMessage(msg.message)
                 setPopupHead('Authorization request')
                 setPopup(true)
             }
             if(msg.type === 'update'){
-                if(msg.status === 'success') console.log(msg.message)
+                console.log(msg);
+                if(msg.status === 'success') setMessageType('success')
+                if(msg.type === 'error') setMessageType('error')
+                setMessage(msg.message)
+                setNewMessage(true)
             }
             
         }
-        if(!localStorage.getItem('username')) navigate('/login')
+        // if(!localStorage.getItem('username')) navigate('/login')
     },[])
     let logout = (e) => {
         e.preventDefault()
@@ -68,7 +67,6 @@ export default function Dashboard(){
         navigate('/')
     }
     let accept = () =>{
-        console.log('checkpoint 1#')
         socket.send(JSON.stringify({
             type: 'authorize',
             data: {
@@ -78,10 +76,9 @@ export default function Dashboard(){
                 amount: msg.amount
             }
         }))
-        console.log('checkpoint 2#')
+        setPopup(false);
     }
     let deny = () =>{
-        console.log('checkpoint 5#')
         socket.send(JSON.stringify({
             type: 'authorize',
             data: {
@@ -89,7 +86,7 @@ export default function Dashboard(){
                 status: 'deny'
             }
         }))
-        console.log('checkpoint 6#')
+        setPopup(false);
     }
     
     return(
@@ -187,7 +184,7 @@ export default function Dashboard(){
 
             {/* Start of main content */}
 
-            <div class="p-4 sm:ml-64">
+            <div class="sm:ml-64">
                 {page === 'home' && <Home />}
                     {page === 'cards' && <Cards />}
                     {page === 'wallet' && <Wallet socket={socket} />}

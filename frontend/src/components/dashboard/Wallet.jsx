@@ -1,22 +1,23 @@
 //perform transactions, view transaction history, view wallet balance, view wallet address.
 import { useEffect,useState } from "react"
-import Popup,{Message} from "../Popups"
-import { render } from "react-dom"
+import {Message} from "../Popups"
 export default function Wallet({socket}){
     let [balance, setBalance] = useState(0)
     let [amount, setAmount] = useState(0)
     let [address, setAddress] = useState('')
     let [newMessage, setNewMessage] = useState(false)
     let [message, setMessage] = useState('')
-    let {messageType,setMessageType} = useState('')
+    let [messageType,setMessageType] = useState('')
 
     socket.onmessage = (e) => {
         console.log('From wallet component: ',e.data);
         let data = JSON.parse(e.data)
-        if(data.type === 'error') render(<Message type='error' message={error} />)
         if(data.type === 'update'){
-            if(data.status === 'success') render(<Message type='success' message={data.message} />)
+            if(data.status === 'success') setMessageType('success')
+            if(data.type === 'error') setMessageType('error')
         }
+        setMessage(data.message)
+        setNewMessage(true)
     }
 
     let sendTransaction = (e) => {
@@ -27,12 +28,14 @@ export default function Wallet({socket}){
             amount: amount,
             username: localStorage.getItem('username')
         }))
-        render(<Message type='warning' message='Transaction processing...' />)
+        setMessageType('warning')
+        setMessage('Transaction processing...')
+        setNewMessage(true)
     }
 
     return (
         <div class="p-4 rounded-lg dark:border-gray-700 mt-14">
-            {newMessage && <Message type={messageType} message={message} />}
+            {newMessage && <Message type={messageType} message={message} close={()=>{setNewMessage(false)}} />}
             <h3>Wallet Page</h3>
             <form className="flex flex-col w-10/12 md:w-1/3 mx-auto justify-center">
                 <label className="block my-2 rounded-sm pl-4" htmlFor="to">To</label>
