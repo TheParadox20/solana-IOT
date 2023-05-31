@@ -9,20 +9,23 @@ import mysql from 'mysql';
 import bodyParser from 'body-parser';
 
 var con = mysql.createConnection({
-    host: "localhost",
-    user: "root",
-    password: "",
+    host: "127.0.0.1",
+    user: "sammy",
+    password: "sammy",
     database: "solana"
 });
-//create users table
-//CREATE TABLE users (id INT AUTO_INCREMENT PRIMARY KEY, username VARCHAR(255), email VARCHAR(255), password VARCHAR(64) NOT NULL, private_key VARCHAR(128), address VARCHAR(42), card VARCHAR(8));
+//CREATE TABLE users (id INT AUTO_INCREMENT PRIMARY KEY, username VARCHAR(255), email VARCHAR(255), password VARCHAR(64) NOT NULL, private_key VARCHAR(128), address VARCHAR(42));
+//CREATE TABLE cards (id INT PRIMARY KEY, card VARCHAR(255), description VARCHAR(255), user VARCHAR(255));
+//CREATE TABLE transactions (id INT AUTO_INCREMENT PRIMARY KEY, sender VARCHAR(255), receiver VARCHAR(255), amount INT, signature VARCHAR(255),time TIMESTAMP DEFAULT CURRENT_TIMESTAMP);
+//CREATE TABLE stations (id INT AUTO_INCREMENT PRIMARY KEY, name VARCHAR(255), address VARCHAR(255));
 con.connect(function(err) {
     if (err) throw err;
     console.log("Database Connected!");
 });
-let users = {"id1":{
+let users = {"janedoe":{
     wallet: null,
-    client: null
+    client: null,
+    userID: 1
 }};
 let clients = [];
 
@@ -56,7 +59,8 @@ app.post('/login',(req,res)=>{
             if(result[0].private_key != ""){
                 users[req.body.username] = {
                     wallet: createWallet(result[0].private_key),
-                    client: null
+                    client: null,
+                    userID: result[0].id
                 };
                 res.send(JSON.stringify({
                     status: 'success',
@@ -99,21 +103,33 @@ app.get('/balance',(req,res)=>{
 });
 app.get('/transact',async (req,res)=>{//transaction request from base station
     console.log(req.query);
+    //get station from table
+    let station = {}
+    con.query(`SELECT * FROM stations  WHERE id='${req.query.station}'`, function (err, result) {
+        if (err) throw err;
+        if(result.length > 0){
+            station = (result[0]);
+            console.log(station);
+        }
+        else console.log('{"status":"Failed","message":"Station not registered"}')
+    })
     //wait for client to respond if positive wait for transaction to complete if negative send failed
     await new Promise((resolve,reject)=>{
         let username = '';
-        con.query(`SELECT username FROM users  WHERE card='${req.query.rfid}'`, function (err, result) {
+        con.query(`SELECT user FROM cards  WHERE id='${req.query.rfid}'`, function (err, result) {
             if (err) throw err;
             if(result.length > 0){//check if rfid is registered
-                username = result[0].username;
+                username = result[0].user;
+                console.log(username);
                 if(users[username].client){//check if user is online
                     users[username].client.send(JSON.stringify({//send transaction request to user
                         type: 'transact',
                         amount: req.query.amount,
-                        address: req.query.address
+                        address: station.address
                     }));
                     users[username].client.on('message',(message)=>{
                         let msg = JSON.parse(message);
+                        if(msg.type == 'authorize') if(msg.data.status==='deny') reject('{"status":"Failed","message":"Transaction Denied"}');
                         resolve(msg);
                     });
                     setTimeout(()=>{
@@ -127,8 +143,7 @@ app.get('/transact',async (req,res)=>{//transaction request from base station
     })
     .then((msg)=>{
         if(msg.type == 'authorize'){
-            if(msg.data.status==='deny') console.log('Transaction Denied');
-            else if(msg.data.status==='accept'){
+            if(msg.data.status==='accept'){
                 transact(msg.data.amount,msg.data.address,users[msg.data.username].wallet).then((signature)=>{
                     let confirmation = JSON.stringify({
                         type: 'update',
@@ -150,11 +165,21 @@ app.get('/transact',async (req,res)=>{//transaction request from base station
 //add card to user
 app.get('/addcard',(req,res)=>{
     console.log(req.query);
-    con.query(`UPDATE users SET card='${req.query.card}' WHERE username='${req.query.username}'`, function (err, result) {
+    con.query(`INSERT INTO cards (id,user,card,description) VALUES (${req.query.id},"${req.query.user}","${req.query.card}","${req.query.desc}")`, function (err, result) {
         if (err) throw err;
         res.send(JSON.stringify({
             status: 'success',
             message: 'Card Added'
+        }))
+    });
+})
+//get cards
+app.get('/getcards',(req,res)=>{
+    con.query(`SELECT * FROM cards  WHERE user='${req.query.user}'`, function (err, result) {
+        if (err) throw err;
+        res.send(JSON.stringify({
+            status: 'success',
+            data: result
         }))
     });
 })

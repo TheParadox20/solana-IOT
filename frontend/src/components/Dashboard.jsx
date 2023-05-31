@@ -10,6 +10,7 @@ import Footer from "./Footer"
 import Popup,{Message} from "./Popups"
 
 let socket = null;
+let msg = null;
 export default function Dashboard(){
     let [page, setPage] = useState('home')
     let [popup, setPopup] = useState(false)
@@ -18,14 +19,12 @@ export default function Dashboard(){
     let [newMessage, setNewMessage] = useState(false)
     let [message, setMessage] = useState('')
     let {messageType,setMessageType} = useState('')
-    let [accept,setAccept] = useState(()=>{})
-    let [deny,setDeny] = useState(()=>{})
 
     let navigate = useNavigate()
     //if not logged in, redirect to login page via useEffect
     useEffect(()=>{
         initFlowbite();
-        socket = new WebSocket("ws://localhost:3000/");
+        socket = new WebSocket("ws://192.168.100.2:3000/");
         //on open send message
         socket.onopen = () => {
             socket.send(JSON.stringify({
@@ -37,7 +36,8 @@ export default function Dashboard(){
         }
         //on message print message
         socket.onmessage = (e) => {
-            let msg = JSON.parse(e.data)
+            console.log('message received on dashboard')
+            msg = JSON.parse(e.data)
             if(msg.type === 'error') {
                 setMessage(msg.message)
                 setMessageType('error')
@@ -46,26 +46,6 @@ export default function Dashboard(){
             if(msg.type === 'transact'){
                 setPopupMessage(msg.message)
                 setPopupHead('Authorization request')
-                setAccept(function (){
-                    socket.send(JSON.stringify({
-                        type: 'authorize',
-                        data: {
-                            username: localStorage.getItem('username'),
-                            status: 'accept',
-                            address: msg.address,
-                            amount: msg.amount
-                        }
-                    }))
-                })
-                setDeny(function (){
-                    socket.send(JSON.stringify({
-                        type: 'authorize',
-                        data: {
-                            username: localStorage.getItem('username'),
-                            status: 'deny'
-                        }
-                    }))
-                });
                 setPopup(true)
             }
             if(msg.type === 'update'){
@@ -73,7 +53,7 @@ export default function Dashboard(){
             }
             
         }
-        // if(!localStorage.getItem('username')) navigate('/login')
+        if(!localStorage.getItem('username')) navigate('/login')
     },[])
     let logout = (e) => {
         e.preventDefault()
@@ -86,6 +66,30 @@ export default function Dashboard(){
         socket.close()
         localStorage.removeItem('username')
         navigate('/')
+    }
+    let accept = () =>{
+        console.log('checkpoint 1#')
+        socket.send(JSON.stringify({
+            type: 'authorize',
+            data: {
+                username: localStorage.getItem('username'),
+                status: 'accept',
+                address: msg.address,
+                amount: msg.amount
+            }
+        }))
+        console.log('checkpoint 2#')
+    }
+    let deny = () =>{
+        console.log('checkpoint 5#')
+        socket.send(JSON.stringify({
+            type: 'authorize',
+            data: {
+                username: localStorage.getItem('username'),
+                status: 'deny'
+            }
+        }))
+        console.log('checkpoint 6#')
     }
     
     return(
