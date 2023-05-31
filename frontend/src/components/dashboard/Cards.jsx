@@ -73,7 +73,7 @@ export default function Cards(){
             </div>
 
             <h3 className="text-xl font-bold my-4">Add card</h3>
-            <form className="flex flex-col w-10/12 md:w-1/3 mx-auto justify-center">
+            <form className="flex flex-col w-10/12 lg:w-1/3 mx-auto justify-center">
                 <label className="my-2 block text-sm font-medium leading-6 text-gray-900" htmlFor="card">Card UID</label>
                 <input className="my-2 pl-2 block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-green-400 sm:text-sm sm:leading-6" type="text" name="card" id="card" placeholder="12341234" value={card} onChange={event=>setCard(event.target.value)}/>
                 <label className="my-2 block text-sm font-medium leading-6 text-gray-900" htmlFor="name">Card Name</label>

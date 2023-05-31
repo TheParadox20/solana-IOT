@@ -37,7 +37,7 @@ export default function Wallet({socket}){
         <div class="p-4 rounded-lg dark:border-gray-700 mt-14">
             {newMessage && <Message type={messageType} message={message} close={()=>{setNewMessage(false)}} />}
             <h3 className="text-3xl font-bold my-8">Transact</h3>
-            <form className="flex flex-col w-10/12 md:w-[30%] mx-auto justify-center">
+            <form className="flex flex-col w-10/12 lg:w-[30%] mx-auto justify-center">
                 <form className="space-y-6" action="#" method="POST">
                     <div>
                     <label htmlFor="address" className="block text-sm font-medium leading-6 text-gray-900">

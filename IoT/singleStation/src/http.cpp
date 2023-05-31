@@ -37,15 +37,20 @@ bool runHTTPclient(String payload){
   String response = "{}"; 
   
   if (httpResponseCode>0) {
+    digitalWrite(14,LOW);
     digitalWrite(13,HIGH);
     Serial.print("HTTP Response code: ");
     Serial.println(httpResponseCode);
     response = http.getString();
   }
   else {
+    digitalWrite(12,HIGH);
     Serial.print("Error code: ");
     Serial.println(httpResponseCode);
+    digitalWrite(12,LOW);
   }
+  digitalWrite(13,LOW);
+  digitalWrite(14,HIGH);
   // Free resources
   http.end();
   Serial.println(response);
