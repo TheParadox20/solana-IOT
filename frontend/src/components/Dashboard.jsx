@@ -54,6 +54,14 @@ export default function Dashboard(){
             }
             
         }
+        if(msg.type === 'pong') console.log('Pong received');
+        //ping socket every 50s
+        setInterval(()=>{
+            console.log('pinging socket')
+            socket.send(JSON.stringify({
+                type: 'ping'
+            }))
+        },50000)
         // if(!localStorage.getItem('username')) navigate('/login')
     },[])
     let logout = (e) => {

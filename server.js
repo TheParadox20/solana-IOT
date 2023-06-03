@@ -223,6 +223,12 @@ wss.on('connection', (ws) => {
                 }));
             }
         }
+        else if(msg.type == 'ping'){//respond to user ping
+            console.log('ping');
+            ws.send(JSON.stringify({
+                type: 'pong'
+            }));
+        }
         else if(msg.type == 'logout'){
             delete users[msg.data.username];
         }
