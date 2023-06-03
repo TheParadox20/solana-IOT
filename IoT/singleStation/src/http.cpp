@@ -30,7 +30,7 @@ void wifiSetup(){
 }
 
 bool runHTTPclient(String payload){
-  http.begin(client,"http://solana-iot.herokuapp.com/transact?station=1&amount=0.001&rfid="+payload);
+  http.begin(client,"http://192.168.100.2/transact?station=1&amount=0.001&rfid="+payload);
   http.setTimeout(10000);
   int httpResponseCode = http.GET();
   String response = "{}"; 
