@@ -52,9 +52,8 @@ export default function Dashboard(){
                 setMessage(msg.message)
                 setNewMessage(true)
             }
-            
+            if(msg.type === 'pong') console.log('Pong received');
         }
-        if(msg.type === 'pong') console.log('Pong received');
         //ping socket every 50s
         setInterval(()=>{
             console.log('pinging socket')
