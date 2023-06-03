@@ -5,7 +5,7 @@
 
 const char* ssid     = "Happyhome";
 const char* password = "JMongare@123";
-const char* server = "http://192.168.100.2";
+
 HTTPClient http;
 WiFiClient client;
 
@@ -27,11 +27,10 @@ void wifiSetup(){
   Serial.println("WiFi connected.");
   Serial.println("IP address: ");
   Serial.println(WiFi.localIP());
-  http.addHeader("Timeout", "10000");
 }
 
 bool runHTTPclient(String payload){
-  http.begin(client,"http://192.168.100.2:3000/transact?station=1&amount=0.001&rfid="+payload);
+  http.begin(client,"http://solana-iot.herokuapp.com/transact?station=1&amount=0.001&rfid="+payload);
   http.setTimeout(10000);
   int httpResponseCode = http.GET();
   String response = "{}"; 

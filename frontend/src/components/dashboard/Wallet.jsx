@@ -70,13 +70,13 @@ export default function Wallet({socket}){
                     </div>
 
                     <div>
-                    <button onClick={e=>sendTransaction(e)} className="flex w-full justify-center rounded-md bg-green-400 px-3 py-1.5 text-sm font-semibold leading-6 text-white shadow-sm hover:bg-indigo-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-green-400">
+                    <button onClick={e=>sendTransaction(e)} className="flex w-full justify-center rounded-md bg-green-400 px-3 py-1.5 text-sm font-semibold leading-6 text-white shadow-sm hover:bg-green-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-green-400">
                         Send
                     </button>
                     </div>
                 </form>
             </form>
-            <div className="my-8 h-8"></div>
+            <div className="h-40 md:h-72"></div>
         </div>
     )
 }

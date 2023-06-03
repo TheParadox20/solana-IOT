@@ -26,7 +26,7 @@ export default function Dashboard(){
     useEffect(()=>{
         initFlowbite();
         // socket = new WebSocket("wss://solana-iot.herokuapp.com/");
-        socket = new WebSocket("ws://192.168.100.2:3000/");
+        socket = new WebSocket("ws://192.168.100.2/");
         //on open send message
         socket.onopen = () => {
             socket.send(JSON.stringify({
