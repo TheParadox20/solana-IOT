@@ -117,7 +117,6 @@ app.get('/transact',async (req,res)=>{//transaction request from base station
         if (err) throw err;
         if(result.length > 0){
             station = (result[0]);
-            console.log(station);
         }
         else console.log('{"status":"Failed","message":"Station not registered"}')
     })
@@ -138,7 +137,7 @@ app.get('/transact',async (req,res)=>{//transaction request from base station
                     users[username].client.on('message',(message)=>{
                         let msg = JSON.parse(message);
                         if(msg.type == 'authorize') if(msg.data.status==='deny') reject('{"status":"Failed","message":"Transaction Denied"}\n');
-                        resolve(msg+'\n');
+                        resolve(msg);
                     });
                     setTimeout(()=>{
                         reject('{"status":"Failed","message":"user not responding"}\n');
@@ -156,10 +155,14 @@ app.get('/transact',async (req,res)=>{//transaction request from base station
                     let confirmation = JSON.stringify({
                         type: 'update',
                         status: 'success',
-                        message: `Transaction Successful: ${signature}}`
+                        message: {
+                            text: `Transaction Successful`,
+                            signature: signature
+                        },
                     })
                     users[msg.data.username].client.send(confirmation);
                     res.send(confirmation);
+                    console.log('confirmation sent');
                 });
             }
         }
@@ -222,21 +225,6 @@ wss.on('connection', (ws) => {
         }
         else if(msg.type == 'logout'){
             delete users[msg.data.username];
-        }
-        if(msg.type == 'authorize'){
-            if(msg.data.status==='accept'){
-                transact(msg.data.amount,msg.data.address,users[msg.data.username].wallet).then((signature)=>{
-                    let confirmation = JSON.stringify({
-                        type: 'update',
-                        status: 'success',
-                        message: {
-                            text: `Transaction Successful`,
-                            signature: signature
-                        },
-                    })
-                    users[msg.data.username].client.send(confirmation);
-                });
-            }
         }
       console.log(`Received message: ${message}`);
     });

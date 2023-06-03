@@ -25,7 +25,8 @@ export default function Dashboard(){
     //if not logged in, redirect to login page via useEffect
     useEffect(()=>{
         initFlowbite();
-        socket = new WebSocket("wss://solana-iot.herokuapp.com/");
+        // socket = new WebSocket("wss://solana-iot.herokuapp.com/");
+        socket = new WebSocket("ws://192.168.100.2:3000/");
         //on open send message
         socket.onopen = () => {
             socket.send(JSON.stringify({
