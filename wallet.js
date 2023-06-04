@@ -12,10 +12,21 @@ let connection = new web3.Connection("https://api.devnet.solana.com", "confirmed
 function createWallet(pk){
     return web3.Keypair.fromSecretKey(bs58.decode(pk));
 }
+//verify private key
+function verifyPrivateKey(pk){
+    try{
+        web3.Keypair.fromSecretKey(bs58.decode(pk));
+        return true;
+    }catch(e){
+        return false;
+    }
+}
 
 //get user balance
 async function getUserBalance(address) {
     let balance = await connection.getBalance(new web3.PublicKey(address));
+    //convert to sol
+    balance = balance/web3.LAMPORTS_PER_SOL;
     console.log('Balance : ',balance, 'LAMPORTS');
     return balance;
 }
@@ -37,4 +48,4 @@ async function transact(amount,receiver,wallet){//amount in sol
     console.log('Tx Complete: ',signature);
     return signature;
 }
-export {getUserBalance,transact,createWallet};
+export {getUserBalance,transact,createWallet, verifyPrivateKey};

@@ -28,6 +28,7 @@ export default function Login() {
             if(data.status === 'success'){
                 localStorage.setItem('username',data.username)
                 localStorage.setItem('email',data.email)
+                localStorage.setItem('address',data.address)
                 navigate('/dashboard')
             }else if(data.status === 'error'){
                 alert(data.message)
@@ -51,6 +52,7 @@ export default function Login() {
         }).then(res => res.json()).then(data => {
             console.log(data)
             if(data.status === 'success') setSignup(false)
+            if(data.status === 'failed') alert(data.message)
         })
     }
     

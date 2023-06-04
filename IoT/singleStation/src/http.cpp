@@ -30,22 +30,25 @@ void wifiSetup(){
 }
 
 bool runHTTPclient(String payload){
+  digitalWrite(14,LOW);
+  digitalWrite(13,HIGH);
+  // http.begin(client,"http://192.168.100.2/transact?station=1&amount=0.001&rfid="+payload);
   http.begin(client,"http://solana-iot.herokuapp.com/transact?station=1&amount=0.001&rfid="+payload);
-  http.setTimeout(10000);
+  http.setTimeout(12000);
   int httpResponseCode = http.GET();
   String response = "{}"; 
   
   if (httpResponseCode>0) {
-    digitalWrite(14,LOW);
-    digitalWrite(13,HIGH);
     Serial.print("HTTP Response code: ");
     Serial.println(httpResponseCode);
     response = http.getString();
   }
-  else {
+  if(httpResponseCode<0 || response.indexOf("Failed")>=0) {
+    digitalWrite(13,LOW);
     digitalWrite(12,HIGH);
     Serial.print("Error code: ");
     Serial.println(httpResponseCode);
+    delay(2000);
     digitalWrite(12,LOW);
   }
   digitalWrite(13,LOW);

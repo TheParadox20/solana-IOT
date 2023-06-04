@@ -2,7 +2,7 @@ import express, { response } from 'express';
 import path from 'path';
 import cors from 'cors';
 import { fileURLToPath } from 'url';
-import {getUserBalance,transact,createWallet} from './wallet.js';
+import {getUserBalance, transact, createWallet, verifyPrivateKey} from './wallet.js';
 import WebSocket from 'ws';
 import http from 'http';
 import mysql from 'mysql';
@@ -94,14 +94,21 @@ app.post('/login',(req,res)=>{
 });
 app.post('/signup',(req,res)=>{
     //insert into users table
-    con.query(`INSERT INTO users (username, email, password, private_key) VALUES ("${req.body.username}", "${req.body.email}","${req.body.password}", "${req.body.pk}")`, function (err, result) {
-        if (err) throw err;
+    if(req.body.pk=='' || verifyPrivateKey(req.body.pk)){
+        con.query(`INSERT INTO users (username, email, password, private_key) VALUES ("${req.body.username}", "${req.body.email}","${req.body.password}", "${req.body.pk}")`, function (err, result) {
+            if (err) throw err;
+            res.send(JSON.stringify({
+                status: 'success',
+                message: 'Signup Successful'
+            }))
+        });
+        console.log('signup flow completed');
+    }else{
         res.send(JSON.stringify({
-            status: 'success',
-            message: 'Signup Successful'
+            status: 'failed',
+            message: 'Invalid Private Key'
         }))
-    });
-    console.log('signup flow completed');
+    }
 });
 app.get('/balance',(req,res)=>{
     console.log(req.query);
@@ -132,20 +139,21 @@ app.get('/transact',async (req,res)=>{//transaction request from base station
                     users[username].client.send(JSON.stringify({//send transaction request to user
                         type: 'transact',
                         amount: req.query.amount,
-                        address: station.address
+                        address: station.address,
+                        message: `Transaction of ${req.query.amount} SOL to ${station.name}`
                     }));
                     users[username].client.on('message',(message)=>{
                         let msg = JSON.parse(message);
-                        if(msg.type == 'authorize') if(msg.data.status==='deny') reject('{"status":"Failed","message":"Transaction Denied"}\n');
+                        if(msg.type == 'authorize') if(msg.data.status==='deny') reject('{"status":"Failed","message":"Transaction Denied"}');
                         resolve(msg);
                     });
                     setTimeout(()=>{
-                        reject('{"status":"Failed","message":"user not responding"}\n');
+                        reject('{"status":"Failed","message":"user not responding"}');
                     },10000);
                 }
-                else reject('{"status":"Failed","message":"user not online"}\n')
+                else reject('{"status":"Failed","message":"user not online"}')
             }
-            else reject('{"status":"Failed","message":"RFID not registered"}\n')
+            else reject('{"status":"Failed","message":"RFID not registered"}')
         });
     })
     .then((msg)=>{
@@ -191,6 +199,16 @@ app.get('/getcards',(req,res)=>{
         res.send(JSON.stringify({
             status: 'success',
             data: result
+        }))
+    });
+})
+//delete card
+app.get('/deletecard',(req,res)=>{
+    con.query(`DELETE FROM cards WHERE id=${req.query.card}`, function (err, result) {
+        if (err) throw err;
+        res.send(JSON.stringify({
+            status: 'success',
+            message: 'Card Deleted'
         }))
     });
 })

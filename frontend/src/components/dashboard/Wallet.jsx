@@ -1,6 +1,7 @@
 //perform transactions, view transaction history, view wallet balance, view wallet address.
 import { useEffect,useState } from "react"
 import {Message} from "../Popups"
+import {baseURL} from '../../data.json'
 export default function Wallet({socket}){
     let [balance, setBalance] = useState(0)
     let [amount, setAmount] = useState(null)
@@ -8,6 +9,15 @@ export default function Wallet({socket}){
     let [newMessage, setNewMessage] = useState(false)
     let [message, setMessage] = useState('')
     let [messageType,setMessageType] = useState('')
+
+    useEffect(()=>{
+        if(localStorage.getItem('address')){
+            fetch(`${baseURL}/balance?address=${localStorage.getItem('address')}`).then(res => res.json()).then(data => {setBalance(data.balance)})
+            setInterval(()=>{
+                fetch(`${baseURL}/balance?address=${localStorage.getItem('address')}`).then(res => res.json()).then(data => {setBalance(data.balance)})
+            },30000)
+        }
+    },[])
 
     socket.onmessage = (e) => {
         console.log('From wallet component: ',e.data);
@@ -32,11 +42,18 @@ export default function Wallet({socket}){
         setMessage('Transaction processing...')
         setNewMessage(true)
     }
+    let formatAddress = (address) => {
+        if(address)  return address.slice(0,5)+'...'+address.slice(-5)
+    }
 
     return (
         <div class="p-4 rounded-lg dark:border-gray-700 mt-14">
             {newMessage && <Message type={messageType} message={message} close={()=>{setNewMessage(false)}} />}
             <h3 className="text-3xl font-bold my-8">Transact</h3>
+            <div className="flex justify-between md:w-1/2 mx-auto my-8">
+                <div>{formatAddress(localStorage.getItem('address'))} <img src="/copy.svg" className="w-[8%] inline" alt="" /></div>
+                <div className="w-full sm:w-fit text-center">{balance}<span className=" text-xs">SOL</span></div>
+            </div>
             <form className="flex flex-col w-10/12 lg:w-[30%] mx-auto justify-center">
                 <form className="space-y-6" action="#" method="POST">
                     <div>

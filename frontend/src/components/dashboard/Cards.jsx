@@ -9,9 +9,8 @@ export default function Cards(){
     let [cards,  setCards] = useState([
         {
           "id": 12341235,
-          "card": "toll",
-          "description": "use in toll station",
-          "user": "sammy"
+          "card": "null",
+          "description": "demo data"
         }
       ])
 
@@ -19,31 +18,33 @@ export default function Cards(){
         fetch(`${baseURL}/getcards?user=${localStorage.getItem('username')}`).then(res => res.json()).then(data => {
             if(data.status==='success') setCards(data.data)
         }).catch(err => console.log(err));
-        console.log(cards)
     },[])
 
     let addCard = (e) => {
         e.preventDefault()
         console.log('add card')
-        fetch(`${baseURL}/addcard?user=${localStorage.getItem('username')}&card=${cardName}}&id=${card}&desc=${description}`).then(res => res.json()).then(data => {
-            if(data.status==='success') setCards(data.data)
-            cards.push({
-                id: card,
-                card: cardName,
-                description: description,
-                user: localStorage.getItem('username')
-            })
+        fetch(`${baseURL}/addcard?user=${localStorage.getItem('username')}&card=${cardName}&id=${card}&desc=${description}`).then(res => res.json()).then(data => {
+            if(data.status==='success'){
+                cards.push({
+                    id: card,
+                    card: cardName,
+                    description: description,
+                    user: localStorage.getItem('username')
+                })
+                setCard('');
+                setCardName('');
+                setDescription('');
+            }
         })
-        setCard('');
-        setCardName('');
-        setDescription('');
     }
     let deleteCard = (e,i)=>{
         e.preventDefault();
-        console.log(i);
-        fetch(`${baseURL}/deleteCard?user=${localStorage.getItem('username')}&card=${cards[i].id}}`).then(res => res.json()).then(data => {})
-        cards.splice(i,1);
-        cards.push({});
+        fetch(`${baseURL}/deletecard?user=${localStorage.getItem('username')}&card=${cards[i].id}`).then(res => res.json()).then(data => {
+            if(data.status==='success'){
+                cards.splice(i,1);
+                setCards(cards);
+            }
+        })
     }
     return (
         <div class="p-4 rounded-lg dark:border-gray-700 mt-14">

@@ -12,6 +12,9 @@ import Popup,{Message} from "./Popups"
 
 let socket = null;
 let msg = null;
+let formatAddress = (address) => {
+    return address.slice(0,5)+'...'+address.slice(-5)
+}
 export default function Dashboard(){
     let [page, setPage] = useState('home')
     let [popup, setPopup] = useState(false)
@@ -41,9 +44,10 @@ export default function Dashboard(){
             console.log('message received on dashboard')
             msg = JSON.parse(e.data)
             if(msg.type === 'transact'){
-                setPopupMessage(msg.message)
+                setPopupMessage(msg.message+` station`)
                 setPopupHead('Authorization request')
                 setPopup(true)
+                setTimeout(()=>{setPopup(false)},10000);
             }
             if(msg.type === 'update'){
                 console.log(msg);
